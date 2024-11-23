@@ -1,4 +1,5 @@
 ;;
-(in-package #:cl-nn)
+;;
+(in-package #:cl-user)
 (defpackage #:cl-nn-tests
   (:use :cl :cl-nn :fiveam))
