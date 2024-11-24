@@ -36,33 +36,30 @@
          (eida-list *default-eida-list*))
     ;;
     ;;
+    ;; create arrays comisant to connections between slabs/layers
     ;;
     (dotimes (i (- numLayers 1))
       (setf weights-list
             (cons (list (nth i sizeList) (nth (+ i 1) sizeList))
-                  weights-list)))
-    (setf weights-list
-          (mapcar #'(lambda (s) (make-array s :element-type 'float))
-                  (reverse weights-list)))
-    ;;
-    ;;
-    (dotimes (i (- numLayers 1))
+                  weights-list))
       (setf delta-weight-list
             (cons (list (nth i sizeList) (nth (+ i 1) sizeList))
-                  delta-weight-list)))
-    (setf delta-weight-list
-          (mapcar #'(lambda (s) (make-array s :element-type 'float))
-                  (reverse delta-weight-list)))
-    ;;
-    (dotimes (i (- numLayers 1))
+                  delta-weight-list))
       (setf old-delta-weight-list
             (cons (list (nth i sizeList) (nth (+ i 1) sizeList))
                   old-delta-weight-list)))
+    (setf weights-list
+          (mapcar #'(lambda (s) (make-array s :element-type 'float))
+                  (reverse weights-list)))
+    (setf delta-weight-list
+          (mapcar #'(lambda (s) (make-array s :element-type 'float))
+                  (reverse delta-weight-list)))
     (setf old-delta-weight-list
           (mapcar #'(lambda (s) (make-array s :element-type 'float
                                               :initial-element 0.0))
                   (reverse old-delta-weight-list)))
     ;;
+    ;; Preset arrays to random activation and weights
     ;;
     (mapc #'(lambda (x)
               (let ((num (array-dimension x 0)))
@@ -75,8 +72,10 @@
                     (numj (array-dimension x 1)))
                 (dotimes (j numj)
                   (dotimes (i numi)
-                    (setf (aref x i j) (- 0.5 (random 1.0)))))))
+                    ;; TODO investigate whether needing to change weights for other transfer functions
+                    (setf (aref x i j) (- 0.5 (random 1.0))))))) ; random weight between -0.5 and 0.5
           weights-list)
+    ;;
     ;;
     (list numlayers sizelist activation-list sum-of-products-list
           weights-list delta-weight-list back-delta-list old-delta-weight-list
@@ -209,6 +208,8 @@
         (setf jdimension idimension)
         (setf jdeltavector ideltavector))
       ;;
+      ;; Update delta weights in the network
+      ;;
       (setf idimension (car sizelist))
       (dotimes (n (- nlayers 1))
         (setf iactivationvector (nth n activationlist))
@@ -221,12 +222,12 @@
           (dotimes (i idimension)
             (setf delta (* eida (aref jdeltavector j) (aref iactivationvector i)))
             (setf (aref deltaweightarr i j)
-                  (+ (aref deltaweightarr i j) delta))))
+                  (+ (aref deltaweightarr i j) delta)))) ; store delta to update weights
         (setf idimension jdimension))
 
-      ;; (when (not (equal autoplot 'no))
-      ;;   (deltaplot netlist input-format)))
-
+      ;;
+      ;; Update weights in the network
+      ;;
       (setf idimension (car sizelist))
       (dotimes (n (- nlayers 1))
         (setf iactivationvector (nth n activationlist))

@@ -14,7 +14,6 @@
                  l ll)))
 ;;
 ;;
-;;
 (def-suite text-approx)
 (in-suite text-approx)
 ;;
@@ -25,17 +24,20 @@
   ;;
   (is-true (approxl '(1) '(1)))
   (is-true (approxl '(0.1) '(0.1)))
+  (is-true (approxl '(0.01) '(0.01)))
   ;;
   (is-true (approxl '(1 2) '(1 2)))
   (is-true (approxl '(2 1) '(2 1)))
   ;;
   (is-false (approxl '(4 2) '(1 3)))
   (is-false (approxl '(1 2) '(1 3)))
+  (is-false (approxl '(0.02) '(0.04)))
   ;;
   (is-true (approxl '(1 2) '(1 2 3)))
+  ;;
   )
 ;;
-;; (run! 'test-approx)
+(run! 'test-approx)
 ;;
 ;;
 (def-suite activation-functions)
@@ -52,22 +54,24 @@
   (is (approx 1 (sigmoid 5))
       "sig(5) ~ 1"))
 ;;
+(run! 'sigmoid)
+;;
+;;
 (test dSigmoid
   "Test the derivative of the sigmoid"
   ;;
   (is (approx 0 (dsigmoid -5))
       "dsig(-5) ~ 0")
   (is (approx 0.25 (dsigmoid 0))
-      "dsig(0) = 0.25")
+      "dsig(0) = 0.25")        ; should be ~, but format freaks out here only ?!
   (is (approx 0 (dsigmoid 5))
       "dsig(5) ~ 0"))
 ;;
+(run! 'dsigmoid)
+;;
 ;;
 (def-suite delta-rule)
-;;
-;;
 (in-suite delta-rule)
-;;
 ;;
 (test test-delta-one
   ""
@@ -86,7 +90,6 @@
 ;;
 ;; (run! 'delta-rule)
 ;;
-;;
 (test test-delta-two
   ""
   (let ((temp (newdeltanetwork '(4 5 5 4))))
@@ -102,6 +105,5 @@
     (is (approxl '(1 0 0 0) (deltarecall temp '(0 0 0 1))))))
 ;;
 ;; (run! 'test-delta-two)
-;;
 ;;
 (run-all-tests)
